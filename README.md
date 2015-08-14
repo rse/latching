@@ -36,25 +36,34 @@ $ bower install latching
 Application Programming Interface (API)
 ---------------------------------------
 
-- `latching = new Latching()`<br/>
-   Create a new latching context. Usually you need just a single
-   one per application.
+- `Latching`<br/>
+   The exported latching context API class. There are three usual use cases for it:
 
-- `class Foo extends Latching { constructor () { super(); ... } ... }`<br/>
+    - `latching = new Latching()`<br/>
+      Create a new latching context. Usually you need just a
+      single one per application. The latching context has to be provided
+      to all plugins. This is the usual approach for applications using *Latching*.
 
-- `Foo = function () { Latching.call(this); ... }`<br/>
-  `Foo.prototype = Object.create(Latching.prototype)`<br/>
-  `Foo.prototype.constructor = Foo`<br/>
+    - `class Foo extends Latching { constructor () { super(); ... } ... }`<br/>
+       Make a class a latching context by inheriting from it.
+       This is the usual approach for libraries using *Latching*.
+       This is the more elegant ECMAScript 6 syntax.
 
-- `latching.proc()`<br/>
+    - `Foo = function () { Latching.call(this); ... }`<br/>
+      `Foo.prototype = Object.create(Latching.prototype)`<br/>
+      `Foo.prototype.constructor = Foo`<br/>
+       Make a class a latching context by inheriting from it.
+       This is the usual approach for libraries using *Latching*.
+       This is the less elegant ECMAScript 5 syntax.
 
-- `latching.at()`<br/>
+- `Latching#proc(proc: string, init: () => any, step: (prevResult: any, nextResult: any) => any): Latching`<br/>
 
-  `latching.latch()`
+- `Latching#at(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
+  `Latching#latch(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
 
-- `latching.unlatch()`<br/>
+- `Latching#unlatch(name: string, id: number): Latching`<br/>
 
-- `latching.hook()`<br/>
+- `Latching#hook(name: string, proc: name, ...params: any): any`<br/>
 
 License
 -------
