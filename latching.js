@@ -22,34 +22,24 @@
 **  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*  helper function  */
-var objectAssign = function (dst, src) {
-    Object.keys(src).forEach(function (key) {
-        dst[key] = src[key]
-    })
-    return dst
-}
-
-/*  internal hook processing  */
-var standardProcessors = {
-    "none":   { init: undefined,                    step: function (    ) {}                            },
-    "pass":   { init: function (a) { return a[0] }, step: function (o, n) { return n }                  },
-    "or":     { init: false,                        step: function (o, n) { return o || n }             },
-    "and":    { init: true,                         step: function (o, n) { return o && n }             },
-    "mult":   { init: 1,                            step: function (o, n) { return o * n }              },
-    "add":    { init: 0,                            step: function (o, n) { return o + n }              },
-    "append": { init: "",                           step: function (o, n) { return o + n }              },
-    "push":   { init: [],                           step: function (o, n) { o.push(n); return o }       },
-    "concat": { init: [],                           step: function (o, n) { return o.concat(n) }        },
-    "insert": { init: {},                           step: function (o, n) { o[n] = true; return o }     },
-    "assign": { init: {},                           step: function (o, n) { return objectAssign(o, n) } }
-}
-
 /*  the API class  */
 var Latching = function () {
     this._reg  = {}
     this._cnt  = 0
-    this._proc = objectAssign({}, standardProcessors)
+    this._proc = {}
+
+    /*  pre-define some essential result processings  */
+    this.proc("none",   function ( ) { return undefined }, function (    ) { })
+    this.proc("pass",   function (p) { return p[0] },      function (o, n) { return n })
+    this.proc("or",     function ( ) { return false },     function (o, n) { return o || n })
+    this.proc("and",    function ( ) { return true },      function (o, n) { return o && n })
+    this.proc("mult",   function ( ) { return 1 },         function (o, n) { return o * n })
+    this.proc("add",    function ( ) { return 0 },         function (o, n) { return o + n })
+    this.proc("append", function ( ) { return "" },        function (o, n) { return o + n })
+    this.proc("push",   function ( ) { return [] },        function (o, n) { o.push(n); return o })
+    this.proc("concat", function ( ) { return [] },        function (o, n) { return o.concat(n) })
+    this.proc("insert", function ( ) { return {} },        function (o, n) { o[n] = true; return o })
+    this.proc("assign", function ( ) { return {} },        function (o, n) { Object.keys(n).forEach(function (k) { o[k] = n[k] }) } )
 }
 Latching.prototype = {
     /*  define custom result processor  */
@@ -73,7 +63,7 @@ Latching.prototype = {
     },
 
     /*  latch into hook  */
-    latch: function (name, cb, ctx, toFront) {
+    latch: function (name, cb, ctx, prepend) {
         /*  sanity check arguments  */
         if (arguments.length < 2 || arguments.length > 4)
             throw new Error("latch: invalid number of arguments")
@@ -85,7 +75,7 @@ Latching.prototype = {
         /*  store callback into hook callback registry slot  */
         var id = this._cnt++
         var rec = { id: id, cb: cb, ctx: ctx }
-        if (toFront)
+        if (prepend)
             this._reg[name].unshift(rec)
         else
             this._reg[name].push(rec)
@@ -127,9 +117,7 @@ Latching.prototype = {
         var params = Array.prototype.slice.call(arguments, 2)
 
         /*  start result with the initial value  */
-        var result = this._proc[proc].init
-        if (typeof result === "function")
-            result = result.call(null, params)
+        var result = this._proc[proc].init.call(null, params)
 
         /*  give all registered callbacks a chance to
             execute and modify the current result  */
