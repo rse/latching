@@ -1,6 +1,6 @@
 {
     "name":        "latching",
-    "version":     "0.9.0",
+    "version":     "0.9.1",
     "description": "Run-Time Hook Latching",
     "keywords":    [ "hook", "latch" ],
     "main":        "lib/latching.js",
