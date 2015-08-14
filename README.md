@@ -39,17 +39,20 @@ Application Programming Interface (API)
 - `Latching`<br/>
    The exported latching context API class. There are three usual use cases for it:
 
-    - `latching = new Latching()`<br/>
-      Create a new latching context. Usually you need just a
-      single one per application. The latching context has to be provided
-      to all plugins. This is the usual approach for applications using *Latching*.
+    ```
+    var latching = new Latching()
+    ```
+
+    Create a new latching context. Usually you need just a
+    single one per application. The latching context has to be provided
+    to all plugins. This is the usual approach for applications using *Latching*.
 
     - `class Foo extends Latching { constructor () { super(); ... } ... }`<br/>
        Make a class a latching context by inheriting from it.
        This is the usual approach for libraries using *Latching*.
        This is the more elegant ECMAScript 6 syntax.
 
-    - `Foo = function () { Latching.call(this); ... }`<br/>
+    - `var Foo = function () { Latching.call(this); ... }`<br/>
       `Foo.prototype = Object.create(Latching.prototype)`<br/>
       `Foo.prototype.constructor = Foo`<br/>
        Make a class a latching context by inheriting from it.
@@ -58,8 +61,7 @@ Application Programming Interface (API)
 
 - `Latching#proc(proc: string, init: () => any, step: (prevResult: any, nextResult: any) => any): Latching`<br/>
 
-- `Latching#at(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
-  `Latching#latch(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
+- `Latching#{at,latch}(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
 
 - `Latching#unlatch(name: string, id: number): Latching`<br/>
 
