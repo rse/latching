@@ -25,6 +25,7 @@
 /* global describe: false */
 /* global it: false */
 /* jshint -W030 */
+/* jshint unused: false */
 /* eslint no-unused-expressions: 0 */
 
 var chai = require("chai")
@@ -44,6 +45,17 @@ describe("Latching Library", function () {
         expect(latching).to.respondTo("hook")
     })
     it("base functionality", function () {
+        var latching = new Latching()
+        expect(latching.hook("access-allowed", "and", "foo", "wrong-secret")).to.be.equal(true)
+        expect(latching.hook("access-allowed", "and", "foo", "right-secret")).to.be.equal(true)
+        var id = latching.latch("access-allowed", function (user, password, resultPrev, cancel) {
+            return password === "right-secret"
+        })
+        expect(latching.hook("access-allowed", "and", "foo", "wrong-secret")).to.be.equal(false)
+        expect(latching.hook("access-allowed", "and", "foo", "right-secret")).to.be.equal(true)
+        latching.unlatch("access-allowed", id)
+        expect(latching.hook("access-allowed", "and", "foo", "wrong-secret")).to.be.equal(true)
+        expect(latching.hook("access-allowed", "and", "foo", "right-secret")).to.be.equal(true)
     })
 })
 
