@@ -102,7 +102,7 @@ Latching.prototype = {
             throw new Error("unlatch: no such latched callback")
 
         /*  remove callback from hook callback registry slot  */
-        this._reg[name] = this._reg[name].splice(k, 1)
+        this._reg[name].splice(k, 1)
 
         return this
     },
