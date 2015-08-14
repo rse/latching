@@ -37,35 +37,100 @@ Application Programming Interface (API)
 ---------------------------------------
 
 - `Latching`<br/>
-   The exported latching context API class. There are three usual use cases for it:
+   The exported latching context API class.
 
-    ```
+    **Example**:
+
+    ```js
     var latching = new Latching()
     ```
 
-    Create a new latching context. Usually you need just a
+    This creates a new latching context. Usually you need just a
     single one per application. The latching context has to be provided
     to all plugins. This is the usual approach for applications using *Latching*.
 
-    - `class Foo extends Latching { constructor () { super(); ... } ... }`<br/>
-       Make a class a latching context by inheriting from it.
-       This is the usual approach for libraries using *Latching*.
-       This is the more elegant ECMAScript 6 syntax.
+    ```js
+    class Foo extends Latching {
+        constructor () {
+            super()
+            ...
+        }
+        ...
+    }
+    ```
 
-    - `var Foo = function () { Latching.call(this); ... }`<br/>
-      `Foo.prototype = Object.create(Latching.prototype)`<br/>
-      `Foo.prototype.constructor = Foo`<br/>
-       Make a class a latching context by inheriting from it.
-       This is the usual approach for libraries using *Latching*.
-       This is the less elegant ECMAScript 5 syntax.
+    This defines a class as a latching context by inheriting from it.
+    This is the usual approach for libraries using *Latching*.
+    This is the more elegant ECMAScript 6 syntax.
 
-- `Latching#proc(proc: string, init: () => any, step: (prevResult: any, nextResult: any) => any): Latching`<br/>
+    ```js
+    var Foo = function () {
+        Latching.call(this)
+        ...
+    }
+    Foo.prototype = Object.create(Latching.prototype)
+    Foo.prototype.constructor = Foo
+    ```
 
-- `Latching#{at,latch}(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, toFront: boolean): number`<br/>
+    This defines a class as a latching context by inheriting from it.
+    This is the usual approach for libraries using *Latching*.
+    This is the less elegant ECMAScript 5 syntax.
+
+- `Latching#proc(proc: string, init: (params: any[]) => any step: (prevResult: any, nextResult: any) => any): Latching`<br/>
+   Define a custom result processing strategy under name `proc`, based on an
+   initial value produced by `init` (which optionally can be derived
+   from the `hook` parameters `params`) and a zero or multiple times
+   applied result processing `step`.
+
+    **Example** (also the default):
+
+    ```js
+    latching.proc("none",   function ( ) { return undefined }, function (    ) { })
+    latching.proc("pass",   function (p) { return p[0] },      function (o, n) { return n })
+    latching.proc("or",     function ( ) { return false },     function (o, n) { return o || n })
+    latching.proc("and",    function ( ) { return true },      function (o, n) { return o && n })
+    latching.proc("mult",   function ( ) { return 1 },         function (o, n) { return o * n })
+    latching.proc("add",    function ( ) { return 0 },         function (o, n) { return o + n })
+    latching.proc("append", function ( ) { return "" },        function (o, n) { return o + n })
+    latching.proc("push",   function ( ) { return [] },        function (o, n) { o.push(n); return o })
+    latching.proc("concat", function ( ) { return [] },        function (o, n) { return o.concat(n) })
+    latching.proc("insert", function ( ) { return {} },        function (o, n) { o[n] = true; return o })
+    latching.proc("assign", function ( ) { return {} },        function (o, n) { Object.keys(n).forEach(function (k) { o[k] = n[k] }) } )
+    ```
+
+- `Latching#{at,latch}(name: string, cb: (...params: any, prevResult: any, cancel: () => void) => any, ctx: object, prepend: boolean): number`<br/>
+  Latch into a hook of name `name` with the help of a callback function
+  `cb` and optionally its context `ctx` and optionally by prepending
+  (instead of appending, the default) this latching in the processing
+  order. The method `at` is just a short alias for the canonical `latch`.
+
+    **Example**:
+
+    ```js
+    var id = latching.latch("access-allowed", function (user, password, resultPrev, cancel) {
+        return db.user.findBy(user).sha1 === sha1(password)
+    })
+    ```
 
 - `Latching#unlatch(name: string, id: number): Latching`<br/>
+  Unlatch, from the hook of name `name`, the callback function with `id`.
+
+    **Example**:
+
+    ```js
+    latching.unlatch("access-allowed", id)
+    ```
 
 - `Latching#hook(name: string, proc: name, ...params: any): any`<br/>
+  Execute the hook of name `name` with the processing strategy `proc`.
+  This calls all previously latched callbacks with the n+2 (n >= 0)
+  parameters `...params: any, resultPrev: any, cancel: () => void`.
+
+    **Example**:
+
+    ```js
+    var allowed = latching.hook("access-allowed", "and", user, password)
+    ```
 
 License
 -------
