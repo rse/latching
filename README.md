@@ -34,26 +34,64 @@ control.
             super()
             ...
         }
+        main () {
+            let options = [
+                { names: [ "version", "v" ], type: "bool", "default": false,
+                  help: "Print tool version and exit." },
+                { names: [ "help", "h" ], type: "bool", "default": false,
+                  help: "Print this help and exit." },
+                ...
+            ]
+            this.hook("cli-options", "none", options)
+            let parser = dashdash.createParser({
+                options: options,
+            })
+            ...
+        }
+        log (level, msg) {
+            msg = this.hook("log-message", "pass", msg)
+            logger.log(level, msg)
+        }
+        login (username, password) {
+            ...
+            if (!this.hook("access-allowed", "and", username, password))
+                throw new Error("access not allowed")
+            ...
+        }
         ...
     }
     app = new App()
     ...
     ```
 
-- `app-access.js`:
+- `plugin-foo.js`:
 
     ```js
-    ...
-    if (!app.hook("access-allowed", "and", user, password))
-        throw new Error("access not allowed")
-    ...
+    /*  extend applications CLI option parsing  */
+    app.latch("cli-options", (options) => {
+        options.push({
+            names: [ "foo", "f" ], type: "bool", "default": false,
+            help: "Enable the Foo feature"
+        })
+    })
     ```
 
-- `app-plugin-db.js`
+- `plugin-geoip.js`:
 
     ```js
-    var id = app.latch("access-allowed", function (user, password) {
-        return db.user.findBy(user).sha1 === sha1(password)
+    /*  extend applications logging with client location  */
+    app.latch("log-message", (msg) => {
+        let location = ...
+        return `${msg}, location=${location}`
+    })
+    ```
+
+- `plugin-auth.js`
+
+    ```js
+    /*  extend application authentication strategy with a database variant  */
+    app.latch("access-allowed", (username, password) => {
+        return db.user.findBy(username).sha1 === sha1(password)
     })
     ```
 
