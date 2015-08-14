@@ -132,6 +132,13 @@ Application Programming Interface (API)
     var allowed = latching.hook("access-allowed", "and", user, password)
     ```
 
+History
+-------
+
+The latching functionality was first introduced 2012 in [ComponentJS](http://componentjs.com)
+and then revised 2015 for [Microkernel](http://github.com/rse/microkernel/). It then
+was factored out 2015 into this separate **Latching** library.
+
 License
 -------
 
