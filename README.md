@@ -176,7 +176,9 @@ History
 
 The latching functionality was first introduced 2012 in [ComponentJS](http://componentjs.com)
 and then revised 2015 for [Microkernel](http://github.com/rse/microkernel/). It then
-was factored out 2015 into this separate **Latching** library.
+was factored out 2015 into this separate **Latching** library as the functionality
+is useful to have at hand in other applications and libraries through a simple
+dependency only.
 
 License
 -------
