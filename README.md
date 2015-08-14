@@ -13,8 +13,10 @@ Run-Time Hook Latching
 About
 -----
 
-Latching is a small JavaScript library, providing run-time hook
-latching in order to extend the functionality of a program.
+*Latching* is a small JavaScript library for use in Node and Browser
+environments, providing a small run-time hook latching facility,
+allowing your program to be extended by plugins which latch into
+provided run-time hooks.
 
 Installation
 ------------
@@ -34,13 +36,25 @@ $ bower install latching
 Application Programming Interface (API)
 ---------------------------------------
 
-FIXME
+- `latching = new Latching()`<br/>
+   Create a new latching context. Usually you need just a single
+   one per application.
 
-Implementation Notice
----------------------
+- `class Foo extends Latching { constructor () { super(); ... } ... }`<br/>
 
-Latching is written in ECMAScript 5.1 (2011) and will not work in older
-run-time environments.
+- `Foo = function () { Latching.call(this); ... }`<br/>
+  `Foo.prototype = Object.create(Latching.prototype)`<br/>
+  `Foo.prototype.constructor = Foo`<br/>
+
+- `latching.proc()`<br/>
+
+- `latching.at()`<br/>
+
+  `latching.latch()`
+
+- `latching.unlatch()`<br/>
+
+- `latching.hook()`<br/>
 
 License
 -------
