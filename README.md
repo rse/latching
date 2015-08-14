@@ -18,6 +18,45 @@ environments, providing a small run-time hook latching facility,
 allowing your program to be extended by plugins which latch into
 provided run-time hooks.
 
+Example
+-------
+
+Assume you have an application which, at some point in time, has to
+check whether an user is allowed access. The default is to allow access,
+but once a plugin is loaded it can provide a more fine-grained access
+control.
+
+- `app.js`:
+
+    ```js
+    class App extends Latching {
+        constructor () {
+            super()
+            ...
+        }
+        ...
+    }
+    app = new App()
+    ...
+    ```
+
+- `app-access.js`:
+
+    ```js
+    ...
+    if (!app.hook("access-allowed", "and", user, password))
+        throw new Error("access not allowed")
+    ...
+    ```
+
+- `app-plugin-db.js`
+
+    ```js
+    var id = app.latch("access-allowed", function (user, password) {
+        return db.user.findBy(user).sha1 === sha1(password)
+    })
+    ```
+
 Installation
 ------------
 
