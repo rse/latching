@@ -46,13 +46,13 @@ Latching.prototype = {
     proc: function (name, init, step) {
         /*  sanity check arguments  */
         if (arguments.length !== 3)
-            throw new Error("processor: invalid number of arguments")
+            throw new Error("proc: invalid number of arguments")
         if (typeof name !== "string")
-            throw new Error("processor: invalid name argument (has to be string)")
+            throw new Error("proc: invalid name argument (has to be string)")
         if (typeof init !== "function")
-            throw new Error("processor: invalid init argument (has to be function)")
+            throw new Error("proc: invalid init argument (has to be function)")
         if (typeof step !== "function")
-            throw new Error("processor: invalid step argument (has to be function)")
+            throw new Error("proc: invalid step argument (has to be function)")
         this._proc[name] = { init: init, step: step }
         return this
     },
