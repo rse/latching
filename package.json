@@ -1,6 +1,6 @@
 {
     "name":        "latching",
-    "version":     "0.9.4",
+    "version":     "0.9.5",
     "description": "Run-Time Hook Latching",
     "keywords":    [ "hook", "latch" ],
     "main":        "latching.js",
@@ -17,12 +17,12 @@
     "homepage": "https://github.com/rse/latching",
     "bugs":     "https://github.com/rse/latching/issues",
     "devDependencies": {
-        "grunt":                "~0.4.5",
-        "grunt-cli":            "~0.1.13",
-        "grunt-contrib-jshint": "~0.11.3",
-        "grunt-contrib-clean":  "~0.7.0",
+        "grunt":                "~1.0.1",
+        "grunt-cli":            "~1.2.0",
+        "grunt-contrib-jshint": "~1.0.0",
+        "grunt-contrib-clean":  "~1.0.0",
         "grunt-mocha-test":     "~0.12.7",
-        "mocha":                "~2.3.4",
-        "chai":                 "~3.4.1"
+        "mocha":                "~2.4.5",
+        "chai":                 "~3.5.0"
     }
 }
