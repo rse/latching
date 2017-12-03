@@ -91,7 +91,7 @@ control.
     ```js
     /*  extend application authentication strategy with a database variant  */
     app.latch("access-allowed", (username, password) => {
-        return db.user.findBy(username).sha1 === sha1(password)
+        return db.user.findById(username).sha1 === sha1(password)
     })
     ```
 
@@ -184,8 +184,8 @@ Application Programming Interface (API)
     **Example**:
 
     ```js
-    var id = latching.latch("access-allowed", function (user, password, resultPrev, cancel) {
-        return db.user.findBy(user).sha1 === sha1(password)
+    let id = latching.latch("access-allowed", (user, password, resultPrev, cancel) => {
+        return db.user.findById(user).sha1 === sha1(password)
     })
     ```
 
@@ -206,7 +206,7 @@ Application Programming Interface (API)
     **Example**:
 
     ```js
-    var allowed = latching.hook("access-allowed", "and", user, password)
+    let allowed = latching.hook("access-allowed", "and", user, password)
     ```
 
 History
