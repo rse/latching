@@ -209,6 +209,37 @@ Application Programming Interface (API)
     let allowed = latching.hook("access-allowed", "and", user, password)
     ```
 
+- `Latching#use(plugin: (function|class|object), options: object = {}): number`<br/>
+  First, if `plugin` is a function or class, this instanciates it with
+  `new`. Second, this attaches the plugin to the Latching. Third, this
+  calls the method `plugin#use(latching: Latching, options: object)`
+  on the plugin itself to give the plugin a chance to react after it
+  was attached to the latching. The `Latching#use()` returns a unique
+  identifier for use by `Latching#unuse()`.
+
+    **Example**:
+
+    ```js
+    class Plugin {
+        use (latching, options) {
+            this.id = latching.latch("access-allowed", (user, password, resultPrev, cancel) => {
+                return db.user.findById(user).sha1 === sha1(password)
+            })
+        }
+        unuse (latching) {
+            latching.unlatch("access-allowed", this.id)
+        }
+    }
+    [...]
+    latching.use(Plugin)
+    ```
+
+- `Latching#unuse(id: number): Latching`<br/>
+  First, this optionally calls the method `plugin#unuse(latching:
+  Latching)` on the plugin to give the plugin a chance to react before
+  it detached from the latching. Second, it detaches the plugin from the
+  latching.
+
 History
 -------
 

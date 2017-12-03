@@ -157,6 +157,51 @@ Latching.prototype = {
 
         /*  return the final result  */
         return result
+    },
+
+    /*  add a plugin  */
+    use: function (plugin, options) {
+        /*  sanity check arguments  */
+        if (typeof plugin !== "object" && typeof plugin !== "function")
+            throw new Error("use: invalid plugin argument (object or function/class expected)")
+
+        /*  optionally instanciate plugin  */
+        if (typeof plugin === "function")
+            plugin = new plugin()
+
+        /*  attach plugin  */
+        var id = this._latching_cnt++
+        var rec = { id: id, plugin: plugin }
+        this._latching_plugin[id] = rec
+
+        /*  give plugin a chance to react  */
+        if (typeof plugin.use !== "function")
+            throw new Error("use: invalid plugin (method \"use\" expected)")
+        if (typeof options === "undefined")
+            options = {}
+        plugin.use(this, options)
+
+        return id
+    },
+
+    /*  remove a plugin  */
+    unuse: function (id) {
+        /*  sanity check arguments  */
+        if (arguments.length !== 1)
+            throw new Error("unuse: invalid number of arguments")
+        if (this._latching_plugins[id] === undefined)
+            throw new Error("unuse: no such plugin found")
+
+        /*  give plugin a chance to react  */
+        var plugin = this._latching_plugins[id].plugin
+        if (typeof plugin.unuse === "function")
+            plugin.unuse(this)
+
+        /*  detach plugin  */
+        this._latching_plugins[id].plugin = null
+        delete this._latching_plugins[id]
+
+        return this
     }
 }
 
