@@ -22,11 +22,25 @@
 **  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*  helper function for non-enumerable properties  */
+var mkProperty = function (ctx, name, value, writable) {
+    if (writable === undefined)
+        writable = true
+    Object.defineProperty(ctx, name, {
+        configurable: false,
+        enumerable:   false,
+        writable:     writable,
+        value:        value
+    })
+}
+
 /*  the API class  */
 var Latching = function () {
-    this._reg  = {}
-    this._cnt  = 0
-    this._proc = {}
+    /*  the internal information store  */
+    mkProperty(this, "_latching_reg",    {})
+    mkProperty(this, "_latching_cnt",    0 )
+    mkProperty(this, "_latching_proc",   {})
+    mkProperty(this, "_latching_plugin", {})
 
     /*  pre-define some essential result processings  */
     this.proc("none",   function ( ) { return undefined }, function (    ) { })
@@ -53,7 +67,7 @@ Latching.prototype = {
             throw new Error("proc: invalid init argument (has to be function)")
         if (typeof step !== "function")
             throw new Error("proc: invalid step argument (has to be function)")
-        this._proc[name] = { init: init, step: step }
+        this._latching_proc[name] = { init: init, step: step }
         return this
     },
 
@@ -69,16 +83,16 @@ Latching.prototype = {
             throw new Error("latch: invalid number of arguments")
 
         /*  on-the-fly create hook callback registry slot  */
-        if (this._reg[name] === undefined)
-            this._reg[name] = []
+        if (this._latching_reg[name] === undefined)
+            this._latching_reg[name] = []
 
         /*  store callback into hook callback registry slot  */
-        var id = this._cnt++
+        var id = this._latching_cnt++
         var rec = { id: id, cb: cb, ctx: ctx }
         if (prepend)
-            this._reg[name].unshift(rec)
+            this._latching_reg[name].unshift(rec)
         else
-            this._reg[name].push(rec)
+            this._latching_reg[name].push(rec)
         return id
     },
 
@@ -87,13 +101,13 @@ Latching.prototype = {
         /*  sanity check arguments  */
         if (arguments.length !== 2)
             throw new Error("unlatch: invalid number of arguments")
-        if (this._reg[name] === undefined)
+        if (this._latching_reg[name] === undefined)
             throw new Error("unlatch: no such hook \"" + name + "\"")
 
         /*  search for callback in hook callback registry slot  */
         var k = -1
-        for (var i = 0; i < this._reg[name].length; i++) {
-            if (this._reg[name][i].id === id) {
+        for (var i = 0; i < this._latching_reg[name].length; i++) {
+            if (this._latching_reg[name][i].id === id) {
                 k = i
                 break
             }
@@ -102,7 +116,7 @@ Latching.prototype = {
             throw new Error("unlatch: no such latched callback")
 
         /*  remove callback from hook callback registry slot  */
-        this._reg[name].splice(k, 1)
+        this._latching_reg[name].splice(k, 1)
 
         return this
     },
@@ -112,18 +126,18 @@ Latching.prototype = {
         /*  sanity check arguments  */
         if (arguments.length < 2)
             throw new Error("hook: invalid number of arguments")
-        if (this._proc[proc] === undefined)
+        if (this._latching_proc[proc] === undefined)
             throw new Error("hook: no such result processing defined")
         var params = Array.prototype.slice.call(arguments, 2)
 
         /*  start result with the initial value  */
-        var result = this._proc[proc].init.call(null, params)
+        var result = this._latching_proc[proc].init.call(null, params)
 
         /*  give all registered callbacks a chance to
             execute and modify the current result  */
-        if (this._reg[name] !== undefined) {
-            for (var i = 0; i < this._reg[name].length; i++) {
-                var latched = this._reg[name][i]
+        if (this._latching_reg[name] !== undefined) {
+            for (var i = 0; i < this._latching_reg[name].length; i++) {
+                var latched = this._latching_reg[name][i]
 
                 /*  support cancellation  */
                 var cancelled = false
@@ -133,7 +147,7 @@ Latching.prototype = {
                 var resultNew = latched.cb.apply(latched.ctx, params.concat([ result, cancel ]))
 
                 /*  process/merge results  */
-                result = this._proc[proc].step.call(null, result, resultNew)
+                result = this._latching_proc[proc].step.call(null, result, resultNew)
 
                 /*  optionally cancel/short-circuit processing  */
                 if (cancelled)
