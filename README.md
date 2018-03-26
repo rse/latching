@@ -98,16 +98,8 @@ control.
 Installation
 ------------
 
-#### Node environments (with NPM package manager):
-
 ```shell
 $ npm install latching
-```
-
-#### Browser environments (with Bower package manager):
-
-```shell
-$ bower install latching
 ```
 
 Application Programming Interface (API)
