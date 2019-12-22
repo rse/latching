@@ -22,7 +22,7 @@
         "grunt-contrib-jshint": "2.1.0",
         "grunt-contrib-clean":  "2.0.0",
         "grunt-mocha-test":     "0.13.3",
-        "mocha":                "6.1.4",
+        "mocha":                "6.2.2",
         "chai":                 "4.2.0"
     }
 }
