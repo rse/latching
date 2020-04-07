@@ -189,17 +189,17 @@ Latching.prototype = {
         /*  sanity check arguments  */
         if (arguments.length !== 1)
             throw new Error("unuse: invalid number of arguments")
-        if (this._latching_plugins[id] === undefined)
+        if (this._latching_plugin[id] === undefined)
             throw new Error("unuse: no such plugin found")
 
         /*  give plugin a chance to react  */
-        var plugin = this._latching_plugins[id].plugin
+        var plugin = this._latching_plugin[id].plugin
         if (typeof plugin.unuse === "function")
             plugin.unuse(this)
 
         /*  detach plugin  */
-        this._latching_plugins[id].plugin = null
-        delete this._latching_plugins[id]
+        this._latching_plugin[id].plugin = null
+        delete this._latching_plugin[id]
 
         return this
     }
