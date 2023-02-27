@@ -4,6 +4,7 @@
     "description": "Run-Time Hook Latching",
     "keywords":    [ "hook", "latch" ],
     "main":        "latching.js",
+    "types":       "latching.d.ts",
     "repository": {
         "type": "git",
         "url":  "https://github.com/rse/latching.git"
