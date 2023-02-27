@@ -64,7 +64,8 @@ export default class Latching {
     ): this
     hook(
         name: string,
-        proc: string
+        proc: string,
+        ...args: any[]
     ): any
     use(
         plugin: LatchingPlugin,
