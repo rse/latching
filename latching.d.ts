@@ -25,7 +25,7 @@
 export interface LatchingPlugin {
    use(
        latching: Latching,
-       options?: any | undefined
+       options?: any
    ): void
    unuse?(
        latching: Latching
@@ -69,7 +69,7 @@ export default class Latching {
     ): any
     use(
         plugin: LatchingPlugin,
-        options: any
+        options?: any
     ): number
     unuse(
         id: number
